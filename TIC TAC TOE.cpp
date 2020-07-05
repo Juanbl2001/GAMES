@@ -12,7 +12,7 @@ bool win(int& player1, int& player2, bool& f)
 		f = true;
 		return f;
 	}
-	
+
 	else
 	{
 		player1 = 0;
@@ -33,21 +33,21 @@ bool finish(vector<vector<int>> board)
 			{
 				break;
 			}
-			
+
 			else
 			{
 				if (board[i][j] == 1)
 				{
 					player1++;
 				}
-				
+
 				else
 				{
 					player2++;
 				}
 			}
 		}
-		
+
 		if (win(player1, player2, f) == true)
 		{
 			break;
@@ -61,28 +61,28 @@ bool finish(vector<vector<int>> board)
 			{
 				break;
 			}
-			
+
 			for (int j = 0; j < 3; j++)
 			{
 				if (board[j][k] == 0)
 				{
 					break;
 				}
-				
+
 				else
 				{
 					if (board[j][k] == 1)
 					{
 						player1++;
 					}
-					
+
 					else
 					{
 						player2++;
 					}
 				}
 			}
-			
+
 			if (win(player1, player2, f) == true)
 			{
 				break;
@@ -97,13 +97,13 @@ bool finish(vector<vector<int>> board)
 				{
 					break;
 				}
-				
+
 				else
 				{
 					if (board[k][k] == 1) {
 						player1++;
 					}
-					
+
 					else
 					{
 						player2++;
@@ -120,11 +120,11 @@ bool finish(vector<vector<int>> board)
 					}
 					else
 					{
-						if (board[i][2 - i] == 1) 
+						if (board[i][2 - i] == 1)
 						{
 							player1++;
 						}
-						
+
 						else
 						{
 							player2++;
@@ -139,14 +139,14 @@ bool finish(vector<vector<int>> board)
 }
 bool valid_play(string pos, vector<vector<int>>& board, vector<int>& posn, int P)
 {
-	char y[] = { 'u','m','b' }, x[] = { 'l','m','r' };
+	char y[] = { 't','m','b' }, x[] = { 'l','m','r' };
 	for (int i = 0; i < 3; i++)
 	{
 		if (pos[0] == y[i])
 		{
 			posn[0] = i;
 		}
-		
+
 		if (pos[1] == x[i])
 		{
 			posn[1] = i;
@@ -177,12 +177,12 @@ void draw(vector<vector<int>> board)
 			{
 				cout << " " << " | ";
 			}
-			
+
 			else if (board[i][j] == 1)
 			{
 				cout << "X" << " | ";
 			}
-			
+
 			else
 			{
 				cout << "O" << " | ";
@@ -195,7 +195,7 @@ void draw(vector<vector<int>> board)
 
 int main()
 {
-	cout << "First Letter: u (up), m (middle), b (bottom) \n";
+	cout << "First Letter: t (top), m (middle), b (bottom) \n";
 	cout << "Second Letter: l (left), m (middle), r (right) \n";
 	cout << "All Letters must be in lower case (ex: abcdef...)" << endl;
 
@@ -214,15 +214,15 @@ int main()
 		{
 			count++;
 		}
-		
+
 		else
 		{
 			continue;
 		}
 		draw(board);
 		check = finish(board);
-		
 	}
-	cout << "\nWinner: Player" << (count + 9) % 2 + 1 << endl;
+
+	cout << "\nWinner: Player" << (count + 3) % 2 + 1 << endl;
 	return 0;
 }
