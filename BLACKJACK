@@ -1,0 +1,269 @@
+#include <cmath>
+#include <cstdio>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+#include <set>
+#include <stdio.h>      
+#include <stdlib.h>
+#include <time.h>
+#include <array>
+#include <deque>
+
+//BlackJack
+using namespace std;
+
+class BlackJack {
+private:
+	vector<string> suits = { "clubs", "hearts", "diamonds", "spades" };
+	vector<string> value = { "Ace", "2", "3", "4","5","6","7","8","9","10","Jack", "Queen","King" };
+public:
+	void shuffle(deque<string>& deck);
+	void create_deck(deque<string>& deck);
+	void deal(vector<int>& p_value, deque<deque<string>> cards);
+	int card_to_num(deque<string> card, int g);
+
+	vector<string> names;
+	vector<int> bets, done, p_value;
+	vector<float> money;
+};
+
+void BlackJack::shuffle(deque<string>& deck)
+{
+	srand(time(0));
+	for (int i = 0; i < 52; i++)
+	{
+		int r = i + (rand() % (52 - i));
+
+		swap(deck[i], deck[r]);
+	}
+}
+void BlackJack::create_deck(deque<string>& deck)
+{
+	deck.clear();
+	for (int i = 0; i < suits.size(); i++)
+	{
+		for (int j = 0; j < value.size(); j++)
+		{
+			string a = value[j] + " of " + suits[i];
+			deck.push_front(a);
+		}
+	}
+}
+void BlackJack::deal(vector<int>& p_value, deque<deque<string>> cards)
+{
+	vector<string> value = { "Ace", "2", "3", "4","5","6","7","8","9","10","Jack", "Queen","King" };
+	for (int i = 0; i < cards.size(); i++)
+	{
+		p_value[i] = 0;
+		for (int j = 0; j < cards[i].size(); j++)
+		{
+			for (int k = 0; k < 13; k++)
+			{
+				if (cards[i][j].find(value[k]) != std::string::npos)
+				{
+					if (k == 0 && p_value[i] < 11)
+					{
+						p_value[i] += 11;
+					}
+
+					else
+					{
+						if (k > 9)
+						{
+							p_value[i] += 10;
+						}
+						else 
+						{
+							p_value[i] += (k + 1);
+						}
+					}
+				}
+
+				else
+				{
+					continue;
+				}
+			}
+
+		}
+	}
+}
+
+int BlackJack::card_to_num(deque<string> card, int g)
+{
+	for (int j = 0; j < card.size(); j++)
+	{
+		for (int k = 0; k < 13; k++)
+		{
+			if (card[j].find(value[k]) != std::string::npos)
+			{
+				if (k == 0 && g < 11)
+				{
+					return 11;
+				}
+
+				else
+				{
+					if (k > 9)
+					{
+						return 10;
+					}
+					else 
+					{
+						return (k + 1);
+					}
+					
+				}
+			}
+		}
+
+	}
+}
+int main()
+{
+	string fi = "yes", take = "yes", nameofp = " ";
+	int h = 0, e = 0, num_of_players = 0, dealer_pvalue = 0;
+	deque<string> deck;
+	deque<string> dealer_house;
+
+	BlackJack Game;
+	Game.create_deck(deck);
+	Game.shuffle(deck);
+	
+	cout << "Hello! My name is Pomme d'Terre and I am your dealer. The house pays 3-2, Good luck!" << endl;
+
+	cout << "How many players are in the table? (5 or less): ";
+	cin >> num_of_players;
+	deque<deque<string>> cards(num_of_players, deque<string>(5, " "));
+
+	for (int i = 0; i < num_of_players; i++)
+	{
+		cout << "\nName of Player (they will play in the order the names are added)\n";
+		cin >> nameofp;
+		Game.names.push_back(nameofp);
+
+		cout << "\nHow much money to start with? (in USD$)\n"; // Initial Deposit
+		cin >> h;
+		Game.money.push_back(h);
+
+		Game.p_value.push_back(0);
+		Game.done.push_back(1);
+		Game.bets.push_back(0);
+	}
+	while (fi == "yes")
+	{
+		Game.done.clear();
+		for (int i = 0; i < num_of_players; i++)
+		{
+			cout << "How much you want to bet " << Game.names[i] << ". You have " << Game.money[i] << "$" << endl;
+			cin >> e;
+
+			Game.bets[i] = e;
+			Game.money[i] -= e;
+			Game.done.push_back(1);
+		}
+
+		if ((num_of_players + 1) * 5 > deck.size()) //Check if there are enough cards for the round (+1 because of the dealer)
+		{
+			Game.create_deck(deck);
+			Game.shuffle(deck);
+		}
+		int count = 0;
+		for (int j = 0; j < 2; j++)
+		{
+			for (int i = 0; i < num_of_players; i++)
+			{
+				string indi = deck[0];
+				cards[i][j] = indi;
+				deck.pop_front();
+			}
+		}
+		for (int j = 0; j < 2; j++)
+		{
+			dealer_house.push_front(deck[0]);
+			deck.pop_front();
+			dealer_pvalue += Game.card_to_num(dealer_house, dealer_pvalue);
+		}
+
+		cout << "The dealers first card is " << dealer_house[0] << endl;
+
+		Game.deal(Game.p_value, cards);
+
+		for (int i = 0; i < num_of_players; i++)
+		{
+			if (Game.done[i] == 1)
+			{
+				string take = "yes";
+				cout << "Your Cards " << Game.names[i] << " are " << cards[i][0] << " and " << cards[i][1] << endl;
+				cout << "Your Cards add up to " << Game.p_value[i];
+				while (take == "yes" && Game.p_value[i] < 21)
+				{
+					cout << "\nDo you want to draw another card? (yes or no)" << endl; cin >> take;
+					if (take == "yes")
+					{
+						cards[i].push_back(deck[0]);
+						deck.erase(deck.begin());
+						Game.p_value[i] += Game.card_to_num(cards[i], Game.p_value[i]);
+						cout << "Your Cards add up to " << Game.p_value[i] << endl;
+					}
+				}
+				if (Game.p_value[i] > 21)
+				{
+					cout << "Ups! You busted!" << endl;
+					Game.money[i] -= Game.bets[i];
+					Game.done[i] = 0;
+				}
+			}
+		}
+		while (dealer_pvalue < 17)
+		{
+			dealer_house.push_back(deck[0]);
+			deck.erase(deck.begin());
+			dealer_pvalue += Game.card_to_num(dealer_house, dealer_pvalue);
+		}
+		cout << "The dealers card's are: " << endl;
+		for (int j = 0; j < dealer_house.size(); j++)
+		{
+			cout << dealer_house[j] << endl;
+		}
+		cout << "Which add up " << dealer_pvalue << endl;
+		for (int i = 0; i < num_of_players; i++)
+		{
+			if (Game.done[i] == 0)
+			{
+				continue;
+			}
+			else if (dealer_pvalue > 21)
+			{
+				if (Game.p_value[i] == 21 && cards.size() == 2  )
+				{
+					cout << "BlackJack!" << "Congrats "<< Game.names[i] << endl;
+					Game.money[i] += Game.bets[i] + ((3 / 2) * Game.bets[i]);
+				}
+				else
+				{
+					Game.money[i] += 2 * Game.bets[i];
+					cout << "You won " << Game.names[i]<< endl;
+				}
+			}
+			else if (dealer_pvalue == Game.p_value[i])
+			{
+				cout << "You tied with the me " << Game.names[i] << endl;
+				Game.money[i] += Game.bets[i];
+			}
+			else if (dealer_pvalue < Game.p_value[i])
+			{
+				Game.money[i] += 2 * Game.bets[i];
+				cout << "You won " << Game.names[i] << endl;
+			}
+			else
+			{
+				cout << "You lost " << Game.names[i] << endl;
+			}
+		}
+
+		cout << "\nDo you want to play another round? (yes or no)" << endl; cin >> fi;
+	}
+
+}
